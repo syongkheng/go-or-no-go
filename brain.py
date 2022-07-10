@@ -26,7 +26,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    logger.debug("%s (%s) has started the bot.", x.uid, x.username)
+    logger.debug("Start --- %s (%s) has started the bot.", x.uid, x.username)
     await update.message.reply_text(welcome_text, reply_markup=reply_markup)
 
 
@@ -77,7 +77,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def coin_flip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """called when user flips a coin"""
-    logger.debug("Within coin_flip")
     keyboard = [
         [
             InlineKeyboardButton("Heads", callback_data="Head"),
@@ -112,7 +111,7 @@ async def brain_coin_flip(
         await query.edit_message_text(
             f"""The {c.outcome} side is facing you! The number used was {c.program_choice}.\n\nYou should rethink your decision!\n\n/start to play again!"""
         )
-    logger.debug("End of game for %s (%s)", x.uid, x.username)
+    logger.debug("End --- End of game for %s (%s)", x.uid, x.username)
 
 
 def main() -> None:

@@ -17,7 +17,6 @@ class Coin:
         Records the unique id for statistical review
         Choice to see if the flip outcome matches
         """
-        logger.debug("Coin Flip: Initialising Coin")
         self.uid = uid
         self.choice = choice
         self.program_choice = -1
@@ -33,11 +32,13 @@ class Coin:
         r"""
         Flips a coin and print the outcome
         """
-        logger.debug("Coin is being flipped for %s", self.uid)
         self.generate_number()
         self.outcome = Coin.faces[self.program_choice % 2]
         logger.debug(
-            "Program has chosen %s with number %s", self.outcome, self.program_choice
+            "Coin flip: Program has chosen %s with number %s for %s",
+            self.outcome,
+            self.program_choice,
+            self.uid,
         )
         return self.determine_outcome(self.outcome)
 
