@@ -1,0 +1,5 @@
+config.py
+logging.conf
+rng_bot/
+tests/
+__pycache__/
