@@ -2,6 +2,9 @@ import logging
 import logging.config
 import random
 
+logging.config.fileConfig("logging.conf")
+logger = logging.getLogger("simpleExample")
+
 
 class ScissorsPaperStone:
     r"""
@@ -16,27 +19,37 @@ class ScissorsPaperStone:
         """
         self.uid = uid
         self.choice = choice
-        self.win = None
+        self.program_choice = -1
+
+    def generate_number(self) -> int:
+        r"""
+        Generate a number within 3 by using 6 pairs of digit
+        """
+        number_list = []
+        while len(number_list) < 6:
+            num = random.randint(1, 49)
+            if num not in number_list:
+                number_list.append(num)
+        number_list.sort()
+        self.program_choice = number_list
 
     def play(self) -> str:
         r"""
         Plays a game with the bot
         """
-        logger.info("Scissors Paper Stone in progress with %s", self.uid)
-        program_choice = random.randint(0, 999)
-        outcome = ScissorsPaperStone.actions[program_choice % 3]
-        logger.debug("Program has chosen %s with number %s", outcome, program_choice)
+        self.generate_number()
+        outcome = ScissorsPaperStone.actions[sum(self.program_choice) % 3]
+        logger.debug(
+            "--- Scissors Paper Stone: Program has chosen %s with numbers %s",
+            outcome,
+            self.program_choice,
+        )
         return self.determine_result(outcome)
 
     def determine_result(self, outcome) -> str:
         r"""
         Determines the result of the game if it is a Win, Loss, or Draw.
         """
-        logger.debug(
-            "Within determining result of choice: %s and outcome: %s",
-            self.choice,
-            outcome,
-        )
         if self.choice == "Stone":
             if outcome == "Scissor":
                 return "Win"
@@ -64,5 +77,4 @@ def usage() -> None:
 
 
 if __name__ == "__main__":
-    logging.config.fileConfig("logging.conf")
-    logger = logging.getLogger("simpleExample")
+    usage()

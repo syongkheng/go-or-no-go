@@ -3,6 +3,8 @@ import logging.config
 
 import coin
 import config
+import sps
+
 from user import User
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -37,42 +39,65 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # CallbackQueries need to be answered, even if no notification to the user is needed
     # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer()
-
     if query.data == "0":
-        logger.debug("%s (%s) has chosen to Flip a Coin!.", x.uid, x.username)
+        logger.debug("- %s (%s) has chosen to Flip a Coin!.", x.uid, x.username)
         await coin_flip(update, context)
     elif query.data == "1":
         logger.debug(
-            "%s (%s) has chosen to Play a game of Rock Paper Scissors.",
+            "- %s (%s) has chosen to Play a game of Rock Paper Scissors!",
             x.uid,
             x.username,
         )
-    elif query.data == "Head" or "Tail":
+        await scissor_paper_stone(update, context)
+    elif query.data == "Head" or query.data == "Tail":
         await brain_coin_flip(update, context, query.data)
-    elif query.data == "Rock":
-        logger.debug(
-            "Rock Paper Scissors: %s (%s) - Choice: Rock.",
-            x.uid,
-            x.username,
-        )
-    elif query.data == "Paper":
-        logger.debug(
-            "Rock Paper Scissors: %s (%s) - Choice: Paper.",
-            x.uid,
-            x.username,
-        )
-    elif query.data == "Scissors":
-        logger.debug(
-            "Rock Paper Scissors: %s (%s) - Choice: Scissors.",
-            x.uid,
-            x.username,
-        )
-    # await query.edit_message_text(text=f"Selected option: {query.data}")
+    elif query.data == "Rock" or query.data == "Paper" or query.data == "Scissor":
+        await brain_scissor_paper_stone(update, context, query.data)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Displays info on how to use the bot."""
     await update.message.reply_text("Use /start to test this bot.")
+
+
+async def scissor_paper_stone(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    """called when user wants to play scissors paper stone"""
+    keyboard = [
+        [
+            InlineKeyboardButton("Rock", callback_data="Rock"),
+            InlineKeyboardButton("Paper", callback_data="Paper"),
+        ],
+        [InlineKeyboardButton("Scissor", callback_data="Scissor")],
+    ]
+    query = update.callback_query
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text("Choose a move!", reply_markup=reply_markup)
+
+
+async def brain_scissor_paper_stone(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, choice
+) -> None:
+    logger.debug(
+        "-- Rock Paper Scissors: %s (%s) - Choice: %s.", x.uid, x.username, choice
+    )
+    query = update.callback_query
+    s = sps.ScissorsPaperStone(x.uid, choice)
+    outcome = s.play()
+    if outcome == "Win":
+        await query.edit_message_text(
+            f"""It was a victory!\nThe 6 numbers used were {str(s.program_choice)[1:-1]}. *wink*\n\nYou can be sure of your decision!\n\n/start to play again!"""
+        )
+    elif outcome == "Draw":
+        await query.edit_message_text(
+            f"""It was a draw!\nThe 6 numbers used were {str(s.program_choice)[1:-1]}. *wink*\n\nYou should play again!\n\n/start to play again!"""
+        )
+    elif outcome == "Lose":
+        await query.edit_message_text(
+            f"""It was a loss!\nThe 6 numbers used were {str(s.program_choice)[1:-1]}. *wink*\n\nYou should rethink your decision!\n\n/start to play again!"""
+        )
+    logger.debug("End --- End of game for %s (%s)", x.uid, x.username)
 
 
 async def coin_flip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -84,8 +109,6 @@ async def coin_flip(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         ]
     ]
     query = update.callback_query
-    # await query.answer()
-    # await query.edit_message_text(text="Flipping a coin!")
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(
         "Choose a side of the coin!", reply_markup=reply_markup
@@ -96,7 +119,7 @@ async def brain_coin_flip(
     update: Update, context: ContextTypes.DEFAULT_TYPE, choice
 ) -> None:
     logger.debug(
-        "Coin Flip: brain_coin_flip(): %s (%s) - Choice: %s.",
+        "-- Coin Flip: brain_coin_flip(): %s (%s) - Choice: %s.",
         x.uid,
         x.username,
         choice,
@@ -105,11 +128,11 @@ async def brain_coin_flip(
     c = coin.Coin(x.uid, choice)
     if c.flip():
         await query.edit_message_text(
-            f"""The {c.outcome} side is facing you! The number used was {c.program_choice}.\n\nYou can be sure of your decision!\n\n/start to play again!"""
+            f"""The {c.outcome} side is facing you!\nThe number used was {c.program_choice}. *wink*\n\nYou can be sure of your decision!\n\n/start to play again!"""
         )
     else:
         await query.edit_message_text(
-            f"""The {c.outcome} side is facing you! The number used was {c.program_choice}.\n\nYou should rethink your decision!\n\n/start to play again!"""
+            f"""The {c.outcome} side is facing you!\nThe number used was {c.program_choice}. *wink*\n\nYou should rethink your decision!\n\n/start to play again!"""
         )
     logger.debug("End --- End of game for %s (%s)", x.uid, x.username)
 

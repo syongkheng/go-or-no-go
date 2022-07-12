@@ -22,7 +22,7 @@ class Coin:
         self.program_choice = -1
         self.outcome = -1
 
-    def generate_number(self) -> None:
+    def generate_number(self) -> int:
         r"""
         Generate a 4 digit number between 1000 and 9999 inclusive.
         """
@@ -35,7 +35,7 @@ class Coin:
         self.generate_number()
         self.outcome = Coin.faces[self.program_choice % 2]
         logger.debug(
-            "Coin flip: Program has chosen %s with number %s for %s",
+            "--- Coin flip: Program has chosen %s with number %s for %s",
             self.outcome,
             self.program_choice,
             self.uid,
